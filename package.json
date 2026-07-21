@@ -1,0 +1,76 @@
+{
+  "name": "@agritheory/flyin",
+  "version": "0.1.0",
+  "description": "Pluggable flyin drawer and file preview for Frappe applications",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "AgriTheory",
+    "email": "support@agritheory.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agritheory/flyin"
+  },
+  "bin": {
+    "flyin-build": "./dist/cli/build-if-host.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/flyin.js"
+    },
+    "./file-preview": {
+      "types": "./dist/file-preview.d.ts",
+      "import": "./dist/file-preview.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./plugins": {
+      "types": "./dist/plugins/index.d.ts",
+      "import": "./dist/plugins/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vue-tsc --emitDeclarationOnly && cp src/styles.css dist/styles.css",
+    "build:flyin": "node dist/cli/build-if-host.js",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.15.32",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vue/test-utils": "^2.4.11",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^8.1.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.10",
+    "vue": "^3.5.39",
+    "vue-tsc": "^2.2.10"
+  },
+  "peerDependencies": {
+    "docx-preview": "^0.3.0",
+    "vue": "^3.4.0"
+  },
+  "peerDependenciesMeta": {
+    "docx-preview": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
