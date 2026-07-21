@@ -194,11 +194,55 @@ console.log('Build host:', getBuildHostApp())
 
 CI runs on every push and pull request to `version-15` (typecheck, tests, build).
 
-To publish `@agritheory/flyin` to npm:
+Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. Tags must be full semver (for example `v15.0.0`, not `v15`).
 
-1. Add an `NPM_TOKEN` secret to the GitHub repository (npm access token with publish rights for `@agritheory`).
-2. Push a version tag (for example `v15.0.0`), **or** run the **Release** workflow manually from the Actions tab.
-3. Consumer apps should depend on the published package:
+### One-time npm setup
+
+npm currently requires **either** account MFA **or** a granular access token with **Bypass 2FA** enabled to publish. If you cannot enable an authenticator on your npm account, use the token path below.
+
+1. **Create the `@agritheory` org** on [npmjs.com/org/create](https://www.npmjs.com/org/create).
+2. **Create a granular access token** at [npmjs.com/settings/~/tokens](https://www.npmjs.com/settings/~/tokens):
+   - Type: **Granular Access Token**
+   - Permissions: **Read and write** on `@agritheory/*`
+   - Organizations: **@agritheory** with publish access
+   - **Check “Bypass two-factor authentication (2FA)”** — required for CI, and the practical option when account MFA is unavailable
+   - Expiration: 90 days (npm max for write tokens); rotate before it expires
+3. **Add the token to GitHub** as repository secret `NPM_TOKEN`:
+   - [agritheory/flyin](https://github.com/agritheory/flyin) → Settings → Secrets and variables → Actions
+   - Name: `NPM_TOKEN`, value: the `npm_…` token
+
+Optional: add `NPM_TOKEN` at the **AgriTheory org** level so other `@agritheory/*` packages can reuse it.
+
+**Local first publish** (creates the package on npm before CI runs):
+
+```bash
+cd flyin
+yarn install
+yarn typecheck && yarn test --run && yarn build
+NODE_AUTH_TOKEN=your_npm_token npm publish --access public --tag v15
+```
+
+**Trusted Publishing** (OIDC, no long-lived token) is worth revisiting if npm MFA becomes available later — configuring it on npmjs.com also requires MFA for package settings changes.
+
+### Publish a release
+
+After `NPM_TOKEN` is configured:
+
+1. Ensure `package.json` `version` matches the Frappe line (currently `15.0.0` on `version-15`).
+2. Push an annotated tag matching that version:
+
+```bash
+git tag v15.0.0
+git push origin v15.0.0
+```
+
+Or run the **Release** workflow manually from the Actions tab (optional `version` input overrides `package.json` for that run only).
+
+The workflow publishes `@agritheory/flyin` to dist-tag `v15` (or `v16` on that line). Tag pushes fail if the git tag and `package.json` version differ.
+
+### Consumer dependency
+
+Published installs use the registry (no `file:` path needed in CI):
 
 ```json
 {
@@ -207,6 +251,8 @@ To publish `@agritheory/flyin` to npm:
   }
 }
 ```
+
+After the first publish, refresh each consumer lockfile with `yarn install`.
 
 For local development against an unpublished checkout, use a file dependency instead:
 
