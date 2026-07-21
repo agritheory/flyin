@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/agritheory/flyin"
+    "url": "git+https://github.com/agritheory/flyin.git"
   },
   "bin": {
     "flyin-build": "./dist/cli/build-if-host.js"
@@ -72,6 +72,7 @@
     "node": ">=20.11.0"
   },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   }
 }

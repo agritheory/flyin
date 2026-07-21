@@ -6,6 +6,16 @@ Apps declare flyin slots in `hooks.py`. The **build host** (highest `idx` among 
 
 ## Installation
 
+`@agritheory/flyin` is published to [GitHub Packages](https://github.com/agritheory/flyin/pkgs/npm/flyin). Point the `@agritheory` scope at that registry:
+
+```ini
+# .npmrc (project or ~/.npmrc)
+@agritheory:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+```
+
+The PAT needs `read:packages` (and `repo` if the package is private).
+
 ```bash
 pnpm add @agritheory/flyin
 ```
@@ -194,55 +204,38 @@ console.log('Build host:', getBuildHostApp())
 
 CI runs on every push and pull request to `version-15` (typecheck, tests, build).
 
-Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. Tags must be full semver (for example `v15.0.0`, not `v15`).
+Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. Git tags must be full semver (for example `v15.0.0`, not `v15`).
 
-### One-time npm setup
-
-npm currently requires **either** account MFA **or** a granular access token with **Bypass 2FA** enabled to publish. If you cannot enable an authenticator on your npm account, use the token path below.
-
-1. **Create the `@agritheory` org** on [npmjs.com/org/create](https://www.npmjs.com/org/create).
-2. **Create a granular access token** at [npmjs.com/settings/~/tokens](https://www.npmjs.com/settings/~/tokens):
-   - Type: **Granular Access Token**
-   - Permissions: **Read and write** on `@agritheory/*`
-   - Organizations: **@agritheory** with publish access
-   - **Check “Bypass two-factor authentication (2FA)”** — required for CI, and the practical option when account MFA is unavailable
-   - Expiration: 90 days (npm max for write tokens); rotate before it expires
-3. **Add the token to GitHub** as repository secret `NPM_TOKEN`:
-   - [agritheory/flyin](https://github.com/agritheory/flyin) → Settings → Secrets and variables → Actions
-   - Name: `NPM_TOKEN`, value: the `npm_…` token
-
-Optional: add `NPM_TOKEN` at the **AgriTheory org** level so other `@agritheory/*` packages can reuse it.
-
-**Local first publish** (creates the package on npm before CI runs):
-
-```bash
-cd flyin
-yarn install
-yarn typecheck && yarn test --run && yarn build
-NODE_AUTH_TOKEN=your_npm_token npm publish --access public --tag v15
-```
-
-**Trusted Publishing** (OIDC, no long-lived token) is worth revisiting if npm MFA becomes available later — configuring it on npmjs.com also requires MFA for package settings changes.
+Releases publish to **GitHub Packages** (`https://npm.pkg.github.com`). No npmjs.com account or token is required — the Release workflow uses `GITHUB_TOKEN`.
 
 ### Publish a release
 
-After `NPM_TOKEN` is configured:
-
 1. Ensure `package.json` `version` matches the Frappe line (currently `15.0.0` on `version-15`).
-2. Push an annotated tag matching that version:
+2. Push a tag matching that version:
 
 ```bash
 git tag v15.0.0
 git push origin v15.0.0
 ```
 
-Or run the **Release** workflow manually from the Actions tab (optional `version` input overrides `package.json` for that run only).
+Or run the **Release** workflow manually from the Actions tab.
 
-The workflow publishes `@agritheory/flyin` to dist-tag `v15` (or `v16` on that line). Tag pushes fail if the git tag and `package.json` version differ.
+**Local publish** (optional):
+
+```bash
+yarn install && yarn typecheck && yarn test --run && yarn build
+NODE_AUTH_TOKEN=ghp_your_pat npm publish --access public
+```
 
 ### Consumer dependency
 
-Published installs use the registry (no `file:` path needed in CI):
+Add `.npmrc` in each consumer app:
+
+```ini
+@agritheory:registry=https://npm.pkg.github.com
+```
+
+In GitHub Actions, configure `actions/setup-node` with `registry-url: https://npm.pkg.github.com`, `scope: '@agritheory'`, and grant the workflow `packages: read`. Consumer repos also need access to the package: GitHub → **Packages** → `@agritheory/flyin` → **Package settings** → **Manage Actions access** → add each consumer repo.
 
 ```json
 {
