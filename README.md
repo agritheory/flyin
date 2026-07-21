@@ -49,7 +49,7 @@ Add to the host app's `package.json`:
     "build:flyin": "flyin-build"
   },
   "dependencies": {
-    "@agritheory/flyin": "^0.1.0"
+    "@agritheory/flyin": "^15.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
@@ -188,6 +188,30 @@ console.log('Build host:', getBuildHostApp())
 
 ```css
 @import '@agritheory/flyin/styles.css';
+```
+
+## Publishing
+
+CI runs on every push and pull request to `version-15` (typecheck, tests, build).
+
+To publish `@agritheory/flyin` to npm:
+
+1. Add an `NPM_TOKEN` secret to the GitHub repository (npm access token with publish rights for `@agritheory`).
+2. Push a version tag (for example `v15.0.0`), **or** run the **Release** workflow manually from the Actions tab.
+3. Consumer apps should depend on the published package:
+
+```json
+{
+  "dependencies": {
+    "@agritheory/flyin": "^15.0.0"
+  }
+}
+```
+
+For local development against an unpublished checkout, use a file dependency instead:
+
+```json
+"@agritheory/flyin": "file:../../../flyin/flyin"
 ```
 
 ## License

@@ -9,7 +9,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       include: ['src/**/*.ts', 'src/**/*.vue'],
-      exclude: ['src/desk/**', 'src/cli/**'],
+      exclude: ['src/desk/**', 'src/cli/**', 'src/__tests__/**'],
     }),
   ],
   resolve: {

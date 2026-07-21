@@ -159,6 +159,8 @@ watch(
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  syncBodyScroll(flyout.isOpen.value)
+  syncDrawerLayout(flyout.isOpen.value)
 })
 
 onUnmounted(() => {

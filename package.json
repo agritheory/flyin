@@ -1,6 +1,6 @@
 {
   "name": "@agritheory/flyin",
-  "version": "0.1.0",
+  "version": "15.0.0",
   "description": "Pluggable flyin drawer and file preview for Frappe applications",
   "type": "module",
   "license": "MIT",
@@ -39,6 +39,7 @@
     "dev": "vite",
     "build": "vite build && vue-tsc --emitDeclarationOnly && cp src/styles.css dist/styles.css",
     "build:flyin": "node dist/cli/build-if-host.js",
+    "prepublishOnly": "npm run build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest",

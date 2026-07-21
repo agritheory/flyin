@@ -88,7 +88,7 @@ describe('FilePreview', () => {
 
     mount(FilePreview, { attachTo: document.body })
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
     expect(preview.isOpen.value).toBe(false)
   })
