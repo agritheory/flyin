@@ -5,11 +5,12 @@
       v-if="showOverlay"
       class="flyout-overlay"
       :class="{ 'flyout-overlay--visible': flyout.isOpen.value }"
-      @click="flyout.close"
+      @click="handleOverlayClick"
     />
 
     <!-- Drawer -->
     <div
+      ref="drawerEl"
       class="flyout-drawer"
       :class="{ 'flyout-drawer--open': flyout.isOpen.value }"
       :style="{ width: drawerWidth }"
@@ -52,8 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, watch, type Component as VueComponent } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch, type Component as VueComponent } from 'vue'
 import { useFlyin } from '../composables/useFlyin'
+import { FLYIN_NAVBAR_ROOT_ATTR } from '../plugin'
 import FlyoutHeader from './FlyoutHeader.vue'
 import FlyoutFooter from './FlyoutFooter.vue'
 
@@ -77,6 +79,7 @@ const props = withDefaults(
 )
 
 const flyout = useFlyin()
+const drawerEl = ref<HTMLElement | null>(null)
 const injectedOptions = inject<FlyinInjectedOptions>('flyinOptions', {})
 const drawerMode = computed(() => injectedOptions.drawerMode ?? 'overlay')
 
@@ -97,6 +100,26 @@ const activeComponent = computed(() => {
 
 function selectSlot(slotId: string) {
   flyout.open(slotId)
+}
+
+function handleOverlayClick() {
+  if (flyout.clickToDismiss.value) {
+    flyout.close()
+  }
+}
+
+function handleDocumentClick(event: MouseEvent) {
+  if (!flyout.isOpen.value || !flyout.clickToDismiss.value) return
+
+  const target = event.target as Node | null
+  if (!target) return
+
+  if (drawerEl.value?.contains(target)) return
+
+  const element = target instanceof Element ? target : target.parentElement
+  if (element?.closest(`[${FLYIN_NAVBAR_ROOT_ATTR}], .flyin-trigger`)) return
+
+  flyout.close()
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -122,7 +145,7 @@ function clearPushOffsetTimer() {
 }
 
 function updatePushOffset() {
-  const drawer = document.querySelector('.flyout-drawer.flyout-drawer--open') as HTMLElement | null
+  const drawer = drawerEl.value
   const width = drawer?.getBoundingClientRect().width
   const offset = width && width > 0 ? Math.round(width) : 380
   document.documentElement.style.setProperty('--flyin-push-offset', `${offset}px`)
@@ -150,6 +173,18 @@ function syncDrawerLayout(isOpen: boolean) {
 }
 
 watch(
+  () => flyout.isOpen.value && flyout.clickToDismiss.value,
+  (shouldListen) => {
+    if (shouldListen) {
+      document.addEventListener('click', handleDocumentClick, true)
+    } else {
+      document.removeEventListener('click', handleDocumentClick, true)
+    }
+  },
+  { immediate: true }
+)
+
+watch(
   () => flyout.isOpen.value,
   (isOpen) => {
     syncBodyScroll(isOpen)
@@ -165,6 +200,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('click', handleDocumentClick, true)
   syncBodyScroll(false)
   syncDrawerLayout(false)
   clearPushOffsetTimer()

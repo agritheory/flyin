@@ -12,6 +12,7 @@ export interface FlyinSlotHookConfig {
 export interface FlyinHookConfig {
   slots: Record<string, FlyinSlotHookConfig>
   drawer_mode?: 'overlay' | 'push'
+  click_to_dismiss?: boolean
   navbar_icon?: string
   navbar_title?: string
 }
@@ -372,16 +373,19 @@ export function getFlyinDeskOptions(options?: {
   sitesDir?: string
 }): {
   drawerMode: 'overlay' | 'push'
+  clickToDismiss: boolean
   navbarIcon?: string
   navbarTitle?: string
 } {
   const host = getBuildHostApp(options)
-  if (!host) return { drawerMode: 'overlay' }
+  if (!host) return { drawerMode: 'overlay', clickToDismiss: false }
 
   const config = getAppConfigs(options).find(entry => entry.appName === host)
   const drawerMode = config?.flyin.drawer_mode === 'push' ? 'push' : 'overlay'
+  const clickToDismiss = config?.flyin.click_to_dismiss === true
   return {
     drawerMode,
+    clickToDismiss,
     navbarIcon: config?.flyin.navbar_icon,
     navbarTitle: config?.flyin.navbar_title,
   }

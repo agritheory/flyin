@@ -24,6 +24,8 @@ export interface UseFlyinReturn {
   clearSlotContext: (slotId: string) => void
   refreshBadge: (slotId: string) => Promise<void>
   refreshAllBadges: () => Promise<void>
+  clickToDismiss: ComputedRef<boolean>
+  setClickToDismiss: (enabled: boolean) => void
 }
 
 const slots = ref<Map<string, FlyinSlotConfig>>(new Map())
@@ -35,6 +37,8 @@ const state = ref<FlyinState>({
   activeSlot: null,
   props: {},
 })
+
+const clickToDismissEnabled = ref(false)
 
 function mergeOpenProps(slotId: string, props: Record<string, unknown> = {}): Record<string, unknown> {
   const context = slotContext.value.get(slotId) || {}
@@ -55,6 +59,11 @@ export function useFlyin(): UseFlyinReturn {
     return slots.value.get(state.value.activeSlot) || null
   })
   const currentProps = computed(() => state.value.props)
+  const clickToDismiss = computed(() => clickToDismissEnabled.value)
+
+  function setClickToDismiss(enabled: boolean) {
+    clickToDismissEnabled.value = enabled
+  }
 
   function register(slotId: string, config: FlyinSlotConfig) {
     const normalizedConfig = {
@@ -207,6 +216,8 @@ export function useFlyin(): UseFlyinReturn {
     clearSlotContext,
     refreshBadge,
     refreshAllBadges,
+    clickToDismiss,
+    setClickToDismiss,
   }
 
   return flyinApi

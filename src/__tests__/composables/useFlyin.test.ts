@@ -184,4 +184,23 @@ describe('useFlyin', () => {
 
     expect(flyin.getSlot('panel')?.component).toBe(component)
   })
+
+  it('updates clickToDismiss via setClickToDismiss', () => {
+    const flyin = useFlyin()
+
+    expect(flyin.clickToDismiss.value).toBe(false)
+
+    flyin.setClickToDismiss(true)
+
+    expect(flyin.clickToDismiss.value).toBe(true)
+  })
+
+  it('resets clickToDismiss when flyin state is reset', () => {
+    const flyin = useFlyin()
+    flyin.setClickToDismiss(true)
+
+    resetFlyinState()
+
+    expect(flyin.clickToDismiss.value).toBe(false)
+  })
 })

@@ -139,6 +139,23 @@ const flyin = useFlyin()
 flyin.open('autoreader-exceptions')
 flyin.close()
 flyin.toggle('autoreader-exceptions')
+flyin.setClickToDismiss(true)
+```
+
+When click-to-dismiss is enabled, clicking outside the open drawer closes it. Clicks inside the drawer and on the desk navbar flyin trigger are ignored so toggling does not immediately re-close.
+
+```javascript
+window.flyin.setClickToDismiss(true)
+window.flyin.clickToDismiss.value // boolean
+```
+
+Build hosts can set the default in `hooks.py`:
+
+```python
+flyin = {
+    "slots": { ... },
+    "click_to_dismiss": True,
+}
 ```
 
 Slots are registered at build time from all apps' `hooks.py` configs.

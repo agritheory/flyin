@@ -266,7 +266,27 @@ flyin_build_host = True`,
       0,
     )
 
-    expect(getFlyinDeskOptions({ appsDir, sitesDir })).toEqual({ drawerMode: 'push' })
+    expect(getFlyinDeskOptions({ appsDir, sitesDir })).toEqual({
+      drawerMode: 'push',
+      clickToDismiss: false,
+    })
+  })
+
+  it('reads click-to-dismiss from build host app', () => {
+    writeApp(
+      'host_app',
+      `flyin = {
+  'slots': { 'panel': { 'title': 'Panel', 'component': './Panel.vue' } },
+  'click_to_dismiss': True,
+}
+flyin_build_host = True`,
+      0,
+    )
+
+    expect(getFlyinDeskOptions({ appsDir, sitesDir })).toEqual({
+      drawerMode: 'overlay',
+      clickToDismiss: true,
+    })
   })
 
   it('reads navbar options from build host app', () => {
@@ -283,6 +303,7 @@ flyin_build_host = True`,
 
     expect(getFlyinDeskOptions({ appsDir, sitesDir })).toEqual({
       drawerMode: 'overlay',
+      clickToDismiss: false,
       navbarIcon: 'messages',
       navbarTitle: 'Tools',
     })

@@ -17,6 +17,7 @@ export interface FlyinPluginOptions {
   previewPosition?: 'left' | 'right'
   drawerWidth?: string
   drawerMode?: 'overlay' | 'push'
+  clickToDismiss?: boolean
   zIndex?: {
     drawer?: number
     preview?: number

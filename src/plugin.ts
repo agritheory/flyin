@@ -268,6 +268,7 @@ export const FlyinPlugin = {
       previewPosition = 'right',
       drawerWidth = '380px',
       drawerMode = 'overlay',
+      clickToDismiss = false,
       zIndex = { drawer: 1050, preview: 1000 },
       renderNavbar = false,
     } = options
@@ -285,6 +286,7 @@ export const FlyinPlugin = {
     app.component('Flyout', Flyout)
 
     const flyin = useFlyin()
+    flyin.setClickToDismiss(clickToDismiss)
 
     app.provide('flyin', flyin)
     app.provide('flyinOptions', {

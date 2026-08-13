@@ -5,6 +5,7 @@ declare module 'virtual:flyin-register' {
 declare module 'virtual:flyin-desk-options' {
   export const flyinDeskOptions: {
     drawerMode: 'overlay' | 'push'
+    clickToDismiss: boolean
     navbarIcon?: string
     navbarTitle?: string
   }

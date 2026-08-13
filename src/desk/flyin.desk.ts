@@ -28,6 +28,7 @@ function mountDeskBundle() {
   app.use(PreviewPlugin)
   app.use(FlyinPlugin, {
     drawerMode: flyinDeskOptions.drawerMode,
+    clickToDismiss: flyinDeskOptions.clickToDismiss,
   })
 
   app.mount(mountEl)

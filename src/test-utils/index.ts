@@ -14,6 +14,7 @@ export function createStubComponent(name = 'StubComponent') {
 export function resetFlyinState() {
   const flyin = useFlyin()
   flyin.close()
+  flyin.setClickToDismiss(false)
   for (const slotId of Array.from(flyin.getSlots().keys())) {
     flyin.unregister(slotId)
   }

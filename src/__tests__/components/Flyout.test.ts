@@ -9,11 +9,22 @@ import {
 } from '../../test-utils'
 
 describe('Flyout', () => {
+  const mountedWrappers: ReturnType<typeof mount>[] = []
+
+  function mountFlyout(options?: Parameters<typeof mount>[1]) {
+    const wrapper = mount(Flyout, { attachTo: document.body, ...options })
+    mountedWrappers.push(wrapper)
+    return wrapper
+  }
+
   beforeEach(() => {
     resetFlyinState()
   })
 
   afterEach(() => {
+    while (mountedWrappers.length) {
+      mountedWrappers.pop()?.unmount()
+    }
     resetFlyinState()
     document.body.classList.remove('flyin-drawer-open', 'flyin-drawer-push')
     document.body.style.overflow = ''
@@ -21,11 +32,9 @@ describe('Flyout', () => {
 
   it('renders closed by default', () => {
     registerTestSlot('inbox')
-    const wrapper = mount(Flyout, { attachTo: document.body })
+    const wrapper = mountFlyout()
 
     expect(wrapper.find('.flyout-drawer--open').exists()).toBe(false)
-
-    wrapper.unmount()
   })
 
   it('opens drawer and renders active slot component', async () => {
@@ -34,21 +43,19 @@ describe('Flyout', () => {
 
     flyin.open('inbox', { messageId: '123' })
 
-    const wrapper = mount(Flyout, { attachTo: document.body })
+    const wrapper = mountFlyout()
     await wrapper.vm.$nextTick()
 
     expect(wrapper.find('.flyout-drawer--open').exists()).toBe(true)
     expect(wrapper.find('.stub-component').text()).toBe('InboxPanel')
-
-    wrapper.unmount()
   })
 
-  it('shows overlay when configured and closes on overlay click', async () => {
+  it('shows overlay when configured and closes on overlay click when click-to-dismiss is enabled', async () => {
     const flyin = registerTestSlot('inbox')
     flyin.open('inbox')
+    flyin.setClickToDismiss(true)
 
-    const wrapper = mount(Flyout, {
-      attachTo: document.body,
+    const wrapper = mountFlyout({
       props: { showOverlay: true },
     })
     await wrapper.vm.$nextTick()
@@ -58,15 +65,96 @@ describe('Flyout', () => {
     await wrapper.find('.flyout-overlay').trigger('click')
 
     expect(flyin.isOpen.value).toBe(false)
+  })
 
-    wrapper.unmount()
+  it('does not close on overlay click when click-to-dismiss is disabled', async () => {
+    const flyin = registerTestSlot('inbox')
+    flyin.open('inbox')
+
+    const wrapper = mountFlyout({
+      props: { showOverlay: true },
+    })
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.flyout-overlay').trigger('click')
+
+    expect(flyin.isOpen.value).toBe(true)
+  })
+
+  it('closes on outside click when click-to-dismiss is enabled', async () => {
+    const flyin = registerTestSlot('inbox')
+    flyin.open('inbox')
+    flyin.setClickToDismiss(true)
+
+    const outside = document.createElement('div')
+    outside.className = 'outside-target'
+    document.body.appendChild(outside)
+
+    mountFlyout()
+    await Promise.resolve()
+
+    outside.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(flyin.isOpen.value).toBe(false)
+
+    outside.remove()
+  })
+
+  it('does not close on outside click when click-to-dismiss is disabled', async () => {
+    const flyin = registerTestSlot('inbox')
+    flyin.open('inbox')
+
+    const outside = document.createElement('div')
+    outside.className = 'outside-target'
+    document.body.appendChild(outside)
+
+    mountFlyout()
+    await Promise.resolve()
+
+    outside.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(flyin.isOpen.value).toBe(true)
+
+    outside.remove()
+  })
+
+  it('does not close when clicking inside the drawer', async () => {
+    const flyin = registerTestSlot('inbox')
+    flyin.open('inbox')
+    flyin.setClickToDismiss(true)
+
+    const wrapper = mountFlyout()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.flyout-drawer__body').trigger('click')
+
+    expect(flyin.isOpen.value).toBe(true)
+  })
+
+  it('does not close when clicking the navbar trigger', async () => {
+    const flyin = registerTestSlot('inbox')
+    flyin.open('inbox')
+    flyin.setClickToDismiss(true)
+
+    const trigger = document.createElement('span')
+    trigger.className = 'flyin-trigger'
+    document.body.appendChild(trigger)
+
+    mountFlyout()
+    await Promise.resolve()
+
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(flyin.isOpen.value).toBe(true)
+
+    trigger.remove()
   })
 
   it('closes on Escape key', async () => {
     const flyin = registerTestSlot('inbox')
     flyin.open('inbox')
 
-    mount(Flyout, { attachTo: document.body })
+    mountFlyout()
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
@@ -77,8 +165,7 @@ describe('Flyout', () => {
     const flyin = registerTestSlot('inbox')
     flyin.open('inbox')
 
-    const wrapper = mount(Flyout, {
-      attachTo: document.body,
+    const wrapper = mountFlyout({
       props: { showOverlay: true },
     })
     await wrapper.vm.$nextTick()
@@ -89,8 +176,6 @@ describe('Flyout', () => {
     await wrapper.vm.$nextTick()
 
     expect(document.body.style.overflow).toBe('')
-
-    wrapper.unmount()
   })
 
   it('switches slots from header tabs', async () => {
@@ -99,7 +184,7 @@ describe('Flyout', () => {
     const flyin = useFlyin()
     flyin.open('inbox')
 
-    const wrapper = mount(Flyout, { attachTo: document.body })
+    const wrapper = mountFlyout()
     await wrapper.vm.$nextTick()
 
     const tabs = wrapper.findAll('[role="tab"]')
@@ -110,7 +195,5 @@ describe('Flyout', () => {
 
     expect(flyin.activeSlot.value).toBe('search')
     expect(wrapper.find('.stub-component').text()).toBe('SearchPanel')
-
-    wrapper.unmount()
   })
 })
