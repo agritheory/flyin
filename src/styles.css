@@ -4,6 +4,7 @@
   --flyout-bg: var(--fg-color, #ffffff);
   --flyout-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   --flyout-z-index: 1050;
+  --flyout-push-z-index: 999;
   --flyout-header-height: 48px;
   --flyout-border-color: var(--border-color, #e5e5e5);
 
@@ -74,7 +75,7 @@
     top: var(--navbar-height, 60px);
     bottom: 0;
     height: auto;
-    z-index: 1030;
+    z-index: var(--flyout-push-z-index);
   }
 }
 
