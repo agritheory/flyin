@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, afterEach } from 'vitest'
-import Flyout from '../../components/Flyout.vue'
-import { useFlyin } from '../../composables/useFlyin'
+import Flyout from '../../src/components/Flyout.vue'
+import { useFlyin } from '../../src/composables/useFlyin'
 import {
   createStubComponent,
   registerTestSlot,
   resetFlyinState,
-} from '../../test-utils'
+} from '../test-utils'
 
 describe('Flyout', () => {
   const mountedWrappers: ReturnType<typeof mount>[] = []
@@ -176,6 +176,21 @@ describe('Flyout', () => {
     await wrapper.vm.$nextTick()
 
     expect(document.body.style.overflow).toBe('')
+  })
+
+  it('cycles slots with ctrl+shift+bracket shortcuts', async () => {
+    registerTestSlot('inbox', { title: 'Inbox' })
+    registerTestSlot('search', { title: 'Search' })
+    const flyin = useFlyin()
+    flyin.open('inbox')
+
+    mountFlyout()
+
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: ']', ctrlKey: true, shiftKey: true, bubbles: true }),
+    )
+
+    expect(flyin.activeSlot.value).toBe('search')
   })
 
   it('switches slots from header tabs', async () => {

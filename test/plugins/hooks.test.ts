@@ -15,7 +15,7 @@ import {
   getInstalledAppsForSite,
   isBuildHost,
   detectCurrentAppName,
-} from '../../plugins/hooks'
+} from '../../src/plugins/hooks'
 
 describe('preFormatHooks', () => {
   it('converts Python dict syntax to JSON', () => {
@@ -154,7 +154,7 @@ describe('build host selection', () => {
     writeFileSync(
       join(sitesDir, 'apps.json'),
       JSON.stringify({
-        ...(existsAppsJson() ?? {}),
+        ...existsAppsJson(),
         [appName]: { idx },
       }),
     )

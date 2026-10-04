@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, afterEach } from 'vitest'
-import FilePreview from '../../components/FilePreview.vue'
-import { useFilePreview } from '../../composables/useFilePreview'
-import { resetFilePreviewState } from '../../test-utils'
+import FilePreview from '../../src/components/FilePreview.vue'
+import { useFilePreview } from '../../src/composables/useFilePreview'
+import { resetFilePreviewState } from '../test-utils'
 
 describe('FilePreview', () => {
   beforeEach(() => {

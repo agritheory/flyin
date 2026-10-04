@@ -17,13 +17,13 @@ Apps declare flyin slots in `hooks.py`. The **build host** (highest `idx` among 
 The PAT needs `read:packages` (and `repo` if the package is private).
 
 ```bash
-pnpm add @agritheory/flyin
+yarn add @agritheory/flyin
 ```
 
 The build host app also needs Vite tooling:
 
 ```bash
-pnpm add -D vite @vitejs/plugin-vue
+yarn add -D vite @vitejs/plugin-vue
 ```
 
 ## Declare slots (any participating app)
@@ -72,8 +72,6 @@ Run the desk build from any flyin app — only the host executes:
 
 ```bash
 yarn build:flyin
-# or
-pnpm build:flyin
 ```
 
 ### Build host selection
@@ -164,7 +162,20 @@ Slots are registered at build time from all apps' `hooks.py` configs.
 
 When two or more slots are registered, the drawer header shows icon tabs instead of a title. Click a tab to switch slots without closing the drawer.
 
-Press **Ctrl+Shift+.** anywhere on desk (except when typing in a field) to toggle the drawer. When opening via shortcut, flyin restores the last-used slot, or the first slot with a badge count, or the first registered slot.
+Press **Ctrl+Shift+X** anywhere on desk (except when typing in a field) to toggle the drawer. On macOS, **⌘+Shift+X** matches the same shortcut. Browser window commands (close, quit) and Frappe **Alt** menu accelerators are not overridable from the page.
+
+When opening via shortcut, flyin restores the last-used slot, or the first slot with a badge count, or the first registered slot.
+
+With the drawer open and two or more slots registered, use **Ctrl+Shift+]** and **Ctrl+Shift+[** to move to the next or previous slot tab.
+
+The build host can override the toggle chord in `hooks.py`:
+
+```python
+flyin = {
+    "toggle_shortcut": "ctrl+shift+x",
+    "slots": { ... },
+}
+```
 
 ### Slot context (form-bound consumers)
 
@@ -221,21 +232,20 @@ console.log('Build host:', getBuildHostApp())
 
 CI runs on every push and pull request to `version-15` (typecheck, tests, build).
 
-Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. Git tags must be full semver (for example `v15.0.0`, not `v15`).
+Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. The git tag is the package version — `v15.2.0` publishes `@agritheory/flyin@15.2.0`. Tags must be full semver (`v15.2.0`, not `v15`).
 
 Releases publish to **GitHub Packages** (`https://npm.pkg.github.com`). No npmjs.com account or token is required — the Release workflow uses `GITHUB_TOKEN`.
 
 ### Publish a release
 
-1. Ensure `package.json` `version` matches the Frappe line (currently `15.0.0` on `version-15`).
-2. Push a tag matching that version:
+Push a tag (or create a GitHub Release). The workflow stamps that version onto `package.json` and publishes; you do not need to bump `package.json` first.
 
 ```bash
-git tag v15.0.0
-git push origin v15.0.0
+git tag v15.2.0
+git push origin v15.2.0
 ```
 
-Or run the **Release** workflow manually from the Actions tab.
+To republish an existing tag after a workflow change, run **Release** from the Actions tab and pass the version (for example `15.2.0`).
 
 **Local publish** (optional):
 

@@ -58,6 +58,7 @@ import { useFlyin } from '../composables/useFlyin'
 import { FLYIN_NAVBAR_ROOT_ATTR } from '../plugin'
 import FlyoutHeader from './FlyoutHeader.vue'
 import FlyoutFooter from './FlyoutFooter.vue'
+import { matchesShortcut, SLOT_NEXT_SHORTCUT, SLOT_PREVIOUS_SHORTCUT } from '../desk/keyboard-shortcuts'
 
 interface FlyinInjectedOptions {
   teleportTo?: string
@@ -122,9 +123,34 @@ function handleDocumentClick(event: MouseEvent) {
   flyout.close()
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false
+  const editable = target.closest('input, textarea, select, [contenteditable="true"]')
+  return Boolean(editable)
+}
+
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && flyout.isOpen.value) {
+  if (!flyout.isOpen.value) return
+
+  if (event.key === 'Escape') {
     flyout.close()
+    return
+  }
+
+  if (isEditableTarget(event.target)) return
+
+  const slotCount = flyout.getSlots().size
+  if (slotCount <= 1) return
+
+  if (matchesShortcut(event, SLOT_NEXT_SHORTCUT)) {
+    event.preventDefault()
+    flyout.cycleSlot(1)
+    return
+  }
+
+  if (matchesShortcut(event, SLOT_PREVIOUS_SHORTCUT)) {
+    event.preventDefault()
+    flyout.cycleSlot(-1)
   }
 }
 
