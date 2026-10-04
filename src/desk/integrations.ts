@@ -8,6 +8,10 @@ import {
   type FlyinNavbarDeskOptions,
 } from '../plugin'
 import { flyinDeskOptions } from 'virtual:flyin-desk-options'
+import {
+  DEFAULT_TOGGLE_SHORTCUT,
+  matchesShortcut,
+} from './keyboard-shortcuts'
 
 const PREVIEWABLE_EXTENSION = /\.(pdf|png|jpe?g|gif|webp|svg|mp4|webm|ogg|mp3|wav|html?)(\?|#|$)/i
 
@@ -23,6 +27,10 @@ function getNavbarDeskOptions(): FlyinNavbarDeskOptions {
 
 export { getDeskNavbarNav }
 
+function getToggleShortcut(): string {
+  return flyinDeskOptions.toggleShortcut?.trim() || DEFAULT_TOGGLE_SHORTCUT
+}
+
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false
 
@@ -30,41 +38,57 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return Boolean(editable)
 }
 
-function isFlyinShortcut(event: KeyboardEvent): boolean {
-  return event.ctrlKey && event.shiftKey && event.key === '.'
+function isFlyinToggleShortcut(event: KeyboardEvent): boolean {
+  return matchesShortcut(event, getToggleShortcut())
 }
 
-export function setupKeyboardShortcut() {
-  if (keyboardShortcutRegistered) return
-  keyboardShortcutRegistered = true
+function onToggleShortcutKeydown(event: KeyboardEvent) {
+  if (!isFlyinToggleShortcut(event)) return
+  if (isEditableTarget(event.target)) return
 
-  const flyin = useFlyin()
+  event.preventDefault()
+  event.stopPropagation()
+  useFlyin().toggleDrawer()
+}
 
-  document.addEventListener('keydown', event => {
-    if (!isFlyinShortcut(event)) return
-    if (isEditableTarget(event.target)) return
-
-    event.preventDefault()
-    flyin.toggleDrawer()
-  })
-
+function registerFrappeToggleShortcut(toggleShortcut: string) {
   const frappe = window.frappe as {
     ui?: {
       keys?: {
         add_shortcut?: (config: Record<string, unknown>) => void
       }
     }
+    ready?: (callback: () => void) => void
   } | undefined
 
-  frappe?.ui?.keys?.add_shortcut?.({
-    shortcut: 'ctrl+shift+.',
-    action: () => {
-      if (isEditableTarget(document.activeElement)) return
-      flyin.toggleDrawer()
-    },
-    description: 'Toggle flyin drawer',
-    ignore_inputs: true,
-  })
+  const register = () => {
+    frappe?.ui?.keys?.add_shortcut?.({
+      shortcut: toggleShortcut,
+      action: () => {
+        if (isEditableTarget(document.activeElement)) return
+        useFlyin().toggleDrawer()
+      },
+      description: 'Toggle flyin drawer',
+      ignore_inputs: true,
+    })
+  }
+
+  if (frappe?.ready) {
+    frappe.ready(register)
+  } else {
+    register()
+  }
+}
+
+export function setupKeyboardShortcut() {
+  if (keyboardShortcutRegistered) return
+  keyboardShortcutRegistered = true
+
+  const toggleShortcut = getToggleShortcut()
+
+  window.addEventListener('keydown', onToggleShortcutKeydown, { capture: true })
+
+  registerFrappeToggleShortcut(toggleShortcut)
 }
 
 export function scheduleNavbarBadges() {

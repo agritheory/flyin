@@ -1,6 +1,6 @@
 import { defineComponent, h } from 'vue'
-import { useFlyin } from '../composables/useFlyin'
-import { useFilePreview } from '../composables/useFilePreview'
+import { useFlyin } from '../../src/composables/useFlyin'
+import { useFilePreview } from '../../src/composables/useFilePreview'
 
 export function createStubComponent(name = 'StubComponent') {
   return defineComponent({

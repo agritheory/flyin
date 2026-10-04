@@ -8,6 +8,7 @@ declare module 'virtual:flyin-desk-options' {
     clickToDismiss: boolean
     navbarIcon?: string
     navbarTitle?: string
+    toggleShortcut?: string
   }
 }
 

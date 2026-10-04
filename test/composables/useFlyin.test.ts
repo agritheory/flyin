@@ -1,11 +1,11 @@
 import { beforeEach, afterEach } from 'vitest'
-import { useFlyin } from '../../composables/useFlyin'
+import { useFlyin } from '../../src/composables/useFlyin'
 import {
   createStubComponent,
   registerTestSlot,
   resetFlyinState,
-} from '../../test-utils'
-import { installFrappeMock, uninstallFrappeMock } from '../../test-utils/frappe-mock'
+} from '../test-utils'
+import { installFrappeMock, uninstallFrappeMock } from '../test-utils/frappe-mock'
 
 describe('useFlyin', () => {
   beforeEach(() => {
@@ -202,5 +202,17 @@ describe('useFlyin', () => {
     resetFlyinState()
 
     expect(flyin.clickToDismiss.value).toBe(false)
+  })
+
+  it('cycles between open slots', () => {
+    const flyin = registerTestSlot('inbox')
+    registerTestSlot('search')
+
+    flyin.open('inbox')
+    flyin.cycleSlot(1)
+    expect(flyin.activeSlot.value).toBe('search')
+
+    flyin.cycleSlot(-1)
+    expect(flyin.activeSlot.value).toBe('inbox')
   })
 })

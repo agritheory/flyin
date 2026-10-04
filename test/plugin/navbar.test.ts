@@ -3,8 +3,8 @@ import {
   DEFAULT_FLYIN_NAVBAR_ICON,
   getAggregateBadgeCount,
   resolveNavbarTriggerDisplay,
-} from '../../plugin'
-import type { FlyinSlotConfig } from '../../types'
+} from '../../src/plugin'
+import type { FlyinSlotConfig } from '../../src/types'
 
 function makeSlots(entries: Array<[string, Partial<FlyinSlotConfig>]>) {
   const slots = new Map<string, FlyinSlotConfig>()

@@ -1,6 +1,6 @@
 import { beforeEach, afterEach } from 'vitest'
-import { useFilePreview } from '../../composables/useFilePreview'
-import { resetFilePreviewState } from '../../test-utils'
+import { useFilePreview } from '../../src/composables/useFilePreview'
+import { resetFilePreviewState } from '../test-utils'
 
 describe('useFilePreview', () => {
   beforeEach(() => {

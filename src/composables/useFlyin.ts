@@ -17,6 +17,7 @@ export interface UseFlyinReturn {
   toggle: (slotId: string, props?: Record<string, unknown>) => void
   toggleDrawer: () => void
   openLastOrDefault: () => void
+  cycleSlot: (direction: 1 | -1) => void
   getSlot: (slotId: string) => FlyinSlotConfig | undefined
   getSlots: () => Map<string, FlyinSlotConfig>
   setSlotContext: (slotId: string, props: Record<string, unknown>) => void
@@ -140,6 +141,19 @@ export function useFlyin(): UseFlyinReturn {
     openLastOrDefault()
   }
 
+  function cycleSlot(direction: 1 | -1) {
+    if (!state.value.isOpen) return
+
+    const slotIds = Array.from(slots.value.keys())
+    if (slotIds.length <= 1) return
+
+    const current = state.value.activeSlot
+    const currentIndex = current ? slotIds.indexOf(current) : 0
+    const startIndex = currentIndex >= 0 ? currentIndex : 0
+    const nextIndex = (startIndex + direction + slotIds.length) % slotIds.length
+    open(slotIds[nextIndex])
+  }
+
   function getSlot(slotId: string): FlyinSlotConfig | undefined {
     return slots.value.get(slotId)
   }
@@ -160,7 +174,7 @@ export function useFlyin(): UseFlyinReturn {
   }
 
   function getSlotContext(slotId: string): Record<string, unknown> {
-    return { ...(slotContext.value.get(slotId) || {}) }
+    return { ...slotContext.value.get(slotId) }
   }
 
   function clearSlotContext(slotId: string) {
@@ -209,6 +223,7 @@ export function useFlyin(): UseFlyinReturn {
     toggle,
     toggleDrawer,
     openLastOrDefault,
+    cycleSlot,
     getSlot,
     getSlots,
     setSlotContext,

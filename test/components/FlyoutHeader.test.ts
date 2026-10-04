@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import FlyoutHeader from '../../components/FlyoutHeader.vue'
+import FlyoutHeader from '../../src/components/FlyoutHeader.vue'
 
 describe('FlyoutHeader', () => {
   it('renders a single title when only one slot is provided', () => {

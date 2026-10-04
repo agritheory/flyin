@@ -1,0 +1,23 @@
+#!/bin/sh
+# Installed by "vp config" / "vp hooks enable" (see package.json "prepare").
+# Set VP_GIT_HOOKS=0 to skip hooks when committing.
+set -e
+
+log=$(mktemp)
+trap 'rm -f "$log"' EXIT
+
+step() {
+	printf '  %-22s' "$1…"
+	shift
+	if "$@" >"$log" 2>&1; then
+		echo 'ok'
+	else
+		echo 'FAILED'
+		cat "$log"
+		exit 1
+	fi
+}
+
+step 'lint' yarn lint
+step 'typecheck' yarn typecheck
+step 'build' yarn build
