@@ -60,9 +60,12 @@
 
 /* Push mode: compress desk content instead of overlaying it */
 @media (min-width: 1280px) {
+  body.flyin-drawer-push #body {
+    transition: margin-right var(--flyout-transition-duration) var(--flyout-transition-timing);
+  }
+
   body.flyin-drawer-open.flyin-drawer-push #body {
     margin-right: var(--flyin-push-offset, var(--flyout-width, 380px));
-    transition: margin-right var(--flyout-transition-duration) var(--flyout-transition-timing);
   }
 
   body.flyin-drawer-open.flyin-drawer-push .page-head .page-head-content {
