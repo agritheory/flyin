@@ -13,9 +13,24 @@ export default defineConfig({
     flyinDeskPlugin({ appsDir, sitesDir }),
   ],
   resolve: {
-    alias: {
-      '@': resolve(import.meta.dirname, '..'),
-    },
+    alias: [
+      {
+        find: '@agritheory/flyin/file-preview',
+        replacement: resolve(import.meta.dirname, '../file-preview.ts'),
+      },
+      {
+        find: '@agritheory/flyin/styles.css',
+        replacement: resolve(import.meta.dirname, '../styles.css'),
+      },
+      {
+        find: '@agritheory/flyin',
+        replacement: resolve(import.meta.dirname, '../index.ts'),
+      },
+      {
+        find: '@',
+        replacement: resolve(import.meta.dirname, '..'),
+      },
+    ],
   },
   build: {
     outDir,

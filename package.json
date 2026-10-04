@@ -1,6 +1,6 @@
 {
   "name": "@agritheory/flyin",
-  "version": "15.2.0",
+  "version": "15.2.5",
   "description": "Pluggable flyin drawer and file preview for Frappe applications",
   "type": "module",
   "license": "MIT",
@@ -17,20 +17,20 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/flyin.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
     },
     "./file-preview": {
-      "types": "./dist/file-preview.d.ts",
-      "import": "./dist/file-preview.js"
+      "types": "./src/file-preview.ts",
+      "import": "./src/file-preview.ts"
     },
-    "./styles.css": "./dist/styles.css",
+    "./styles.css": "./src/styles.css",
     "./plugins": {
-      "types": "./dist/plugins/index.d.ts",
-      "import": "./dist/plugins/index.js"
+      "types": "./src/plugins/index.ts",
+      "import": "./src/plugins/index.ts"
     }
   },
-  "types": "./dist/index.d.ts",
+  "types": "./src/index.ts",
   "files": [
     "dist",
     "src"
