@@ -13,7 +13,7 @@
     "url": "git+https://github.com/agritheory/flyin.git"
   },
   "bin": {
-    "flyin-build": "./dist/cli/build-if-host.js"
+    "flyin-build": "./src/cli/run.mjs"
   },
   "exports": {
     ".": {
@@ -39,7 +39,7 @@
     "dev": "vite build --watch",
     "build": "vp run compile",
     "build:lib": "vite build && cp src/styles.css dist/styles.css",
-    "build:flyin": "node dist/cli/build-if-host.js",
+    "build:flyin": "node src/cli/run.mjs",
     "prepare": "vp config --no-agent",
     "prepublishOnly": "yarn build",
     "preview": "vite preview",
