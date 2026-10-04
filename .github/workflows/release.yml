@@ -2,18 +2,24 @@ name: Release
 
 on:
   push:
+    branches:
+      - 'version-*'
     tags:
       - 'v*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g. 15.2.0). Leave empty to use package.json when not triggered by a tag.'
+        description: 'Version to publish (e.g. 15.2.0). Leave empty on a version-* branch to publish the next patch.'
         required: false
         type: string
 
 permissions:
   contents: write
   packages: write
+
+concurrency:
+  group: release-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -23,6 +29,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -45,7 +54,22 @@ jobs:
           elif [[ -n "${INPUT_VERSION}" ]]; then
             VERSION="${INPUT_VERSION}"
           else
-            VERSION="$(node -p "require('./package.json').version")"
+            MAJOR="${GITHUB_REF_NAME#version-}"
+            if ! [[ "${MAJOR}" =~ ^[0-9]+$ ]]; then
+              echo "Cannot infer a major version from branch '${GITHUB_REF_NAME}'"
+              exit 1
+            fi
+            LATEST="$(git tag -l "v${MAJOR}.*" --sort=-v:refname | head -n 1)"
+            if [[ -z "${LATEST}" ]]; then
+              VERSION="$(node -p "require('./package.json').version")"
+              echo "No v${MAJOR}.* tag yet; using package.json ${VERSION}"
+            else
+              BASE="${LATEST#v}"
+              BASE="${BASE%%-*}"
+              IFS='.' read -r MA MI PA <<<"${BASE}"
+              VERSION="${MA}.${MI}.$((10#${PA} + 1))"
+              echo "Latest tag is ${LATEST}; publishing ${VERSION}"
+            fi
           fi
           VERSION="${VERSION#v}"
           if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
