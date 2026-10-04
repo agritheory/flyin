@@ -54,7 +54,7 @@ jobs:
           fi
           echo "Publishing @agritheory/flyin@${VERSION}"
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
-          npm version "${VERSION}" --no-git-tag-version --allow-same-version
+          yarn version --new-version "${VERSION}" --no-git-tag-version
 
       - name: Test and build
         run: |
@@ -64,7 +64,7 @@ jobs:
           yarn build
 
       - name: Publish to GitHub Packages
-        run: npm publish --access public
+        run: yarn publish --non-interactive --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
