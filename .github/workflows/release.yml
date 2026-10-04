@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g. 15.2.0). Leave empty to use the tag or package.json.'
+        description: 'Version to publish (e.g. 15.2.0). Leave empty to use package.json when not triggered by a tag.'
         required: false
         type: string
 
