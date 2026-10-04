@@ -232,26 +232,26 @@ console.log('Build host:', getBuildHostApp())
 
 CI runs on every push and pull request to `version-15` (typecheck, tests, build).
 
-Versioning follows Frappe branches: `version-15` publishes `15.x.x`, `version-16` will publish `16.x.x`. The git tag is the package version — `v15.2.0` publishes `@agritheory/flyin@15.2.0`. Tags must be full semver (`v15.2.0`, not `v15`).
+A push to `version-15` publishes the next patch on its own. The workflow looks up the latest `v15.*` tag, bumps the patch, stamps that version onto `package.json`, publishes, and creates the GitHub release. `version-16` will do the same for `16.x.x`. You leave `package.json` alone.
 
-Releases publish to **GitHub Packages** (`https://npm.pkg.github.com`). No npmjs.com account or token is required — the Release workflow uses `GITHUB_TOKEN`.
+Releases publish to **GitHub Packages** (`https://npm.pkg.github.com`). The Release workflow uses `GITHUB_TOKEN`.
 
-### Publish a release
+### Publish a specific version
 
-Push a tag (or create a GitHub Release). The workflow stamps that version onto `package.json` and publishes; you do not need to bump `package.json` first.
+Push a full semver tag when you want a version other than the next patch, such as `v15.3.0`.
 
 ```bash
-git tag v15.2.0
-git push origin v15.2.0
+git tag v15.3.0
+git push origin v15.3.0
 ```
 
-To republish an existing tag after a workflow change, run **Release** from the Actions tab and pass the version (for example `15.2.0`).
+To republish an existing version after a workflow change, run **Release** from the Actions tab and pass the version (for example `15.2.0`).
 
 **Local publish** (optional):
 
 ```bash
 yarn install && yarn typecheck && yarn test --run && yarn build
-NODE_AUTH_TOKEN=ghp_your_pat npm publish --access public
+NODE_AUTH_TOKEN=ghp_your_pat yarn publish --non-interactive --access public
 ```
 
 ### Consumer dependency
