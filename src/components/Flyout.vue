@@ -183,14 +183,23 @@ function schedulePushOffsetUpdate() {
   pushOffsetTimer = window.setTimeout(updatePushOffset, 300)
 }
 
+function ensurePushLayoutClass() {
+  if (drawerMode.value !== 'push') return
+  document.body.classList.add('flyin-drawer-push')
+}
+
+function teardownPushLayout() {
+  document.body.classList.remove('flyin-drawer-open', 'flyin-drawer-push')
+  document.documentElement.style.removeProperty('--flyin-push-offset')
+  clearPushOffsetTimer()
+}
+
 function syncDrawerLayout(isOpen: boolean) {
   if (drawerMode.value !== 'push') return
 
   document.body.classList.toggle('flyin-drawer-open', isOpen)
-  document.body.classList.toggle('flyin-drawer-push', isOpen)
 
   if (!isOpen) {
-    document.documentElement.style.removeProperty('--flyin-push-offset')
     clearPushOffsetTimer()
     return
   }
@@ -220,6 +229,7 @@ watch(
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  ensurePushLayoutClass()
   syncBodyScroll(flyout.isOpen.value)
   syncDrawerLayout(flyout.isOpen.value)
 })
@@ -228,7 +238,6 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
   document.removeEventListener('click', handleDocumentClick, true)
   syncBodyScroll(false)
-  syncDrawerLayout(false)
-  clearPushOffsetTimer()
+  teardownPushLayout()
 })
 </script>
