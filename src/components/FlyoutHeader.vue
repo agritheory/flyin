@@ -9,8 +9,8 @@
         :class="{ 'flyout-header-tabs__tab--active': slot.id === activeSlotId }"
         role="tab"
         :aria-selected="slot.id === activeSlotId"
-        :aria-label="slot.title"
-        :title="slot.title"
+        :aria-label="localized(slot.title)"
+        :title="localized(slot.title)"
         @click="$emit('select', slot.id)"
       >
         <span
@@ -31,10 +31,10 @@
       <slot name="icon">
         <span v-if="icon && getIconSvg(icon)" class="flyout-drawer__icon" v-html="getIconSvg(icon)" />
       </slot>
-      <slot>{{ title }}</slot>
+      <slot>{{ localized(title) }}</slot>
     </h2>
 
-    <button class="flyout-drawer__close" @click="$emit('close')" aria-label="Close">
+    <button class="flyout-drawer__close" @click="$emit('close')" :aria-label="localized('Close')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getDeskIconSvg } from '../plugin'
+import { translateFlyinText } from '../translate'
 
 export interface FlyoutHeaderSlot {
   id: string
@@ -70,5 +71,10 @@ const useTabs = computed(() => (props.slotList?.length ?? 0) > 1)
 
 function getIconSvg(iconName: string): string {
   return getDeskIconSvg(iconName)
+}
+
+function localized(text: string | undefined): string {
+  if (!text) return ''
+  return translateFlyinText(text)
 }
 </script>

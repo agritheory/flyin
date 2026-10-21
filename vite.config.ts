@@ -3,7 +3,7 @@ import { resolve } from 'path'
 import dts from 'vite-plugin-dts'
 import { defineConfig } from 'vite-plus'
 
-import { buildTask } from './tools/vite/build-task'
+import { buildTask } from './tools/vite/build-task.ts'
 
 const projectRootDir = resolve(import.meta.dirname)
 
@@ -60,6 +60,9 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./test/setup.ts'],
     include: ['test/**/*.test.ts'],
+    alias: {
+      'virtual:flyin-desk-options': resolve(projectRootDir, 'test/test-utils/flyin-desk-options.ts'),
+    },
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,vue}'],

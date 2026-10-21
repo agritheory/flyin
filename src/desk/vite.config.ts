@@ -1,7 +1,7 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
-import { flyinDeskPlugin } from '../plugins/vite'
+import { flyinDeskPlugin } from '../plugins/vite.ts'
 
 const appsDir = process.env.FLYIN_APPS_DIR
 const sitesDir = process.env.FLYIN_SITES_DIR
@@ -37,11 +37,11 @@ export default defineConfig({
     emptyOutDir: false,
     rollupOptions: {
       input: resolve(import.meta.dirname, 'flyin.desk.ts'),
+      checks: { emptyImportMeta: false },
       output: {
         entryFileNames: 'flyin.desk.bundle.js',
         format: 'iife',
         name: 'FlyinDesk',
-        inlineDynamicImports: true,
       },
     },
     target: 'es2015',

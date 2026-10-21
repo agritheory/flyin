@@ -1,7 +1,7 @@
 import type { Plugin, UserConfig } from 'vite'
 import { resolve } from 'path'
-import { generateFlyinRegisterModule } from './register-codegen'
-import { getFlyinDeskOptions, getSlotComponents, getFlyinParticipatingApps } from './hooks'
+import { generateFlyinRegisterModule } from './register-codegen.ts'
+import { getFlyinDeskOptions, getSlotComponents, getFlyinParticipatingApps } from './hooks.ts'
 
 const VIRTUAL_REGISTER_ID = 'virtual:flyin-register'
 const RESOLVED_REGISTER_ID = '\0virtual:flyin-register'
@@ -73,11 +73,11 @@ export function defineFlyinDeskConfig(options: FlyinDeskBuildOptions = {}): User
       lib: false,
       rollupOptions: {
         input: entry,
+        checks: { emptyImportMeta: false },
         output: {
           entryFileNames: 'flyin.desk.bundle.js',
           format: 'iife',
           name: 'FlyinDesk',
-          inlineDynamicImports: true,
         },
       },
       target: 'es2015',

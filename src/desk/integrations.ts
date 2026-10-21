@@ -12,6 +12,7 @@ import {
   DEFAULT_TOGGLE_SHORTCUT,
   matchesShortcut,
 } from './keyboard-shortcuts'
+import { translateFlyinText } from '../translate'
 
 const PREVIEWABLE_EXTENSION = /\.(pdf|png|jpe?g|gif|webp|svg|mp4|webm|ogg|mp3|wav|html?)(\?|#|$)/i
 
@@ -22,7 +23,12 @@ function getNavbarDeskOptions(): FlyinNavbarDeskOptions {
   return {
     navbarIcon: flyinDeskOptions.navbarIcon,
     navbarTitle: flyinDeskOptions.navbarTitle,
+    toggleShortcut: getToggleShortcut(),
   }
+}
+
+export function flyinDrawerShortcutDescription(): string {
+  return translateFlyinText('Toggle flyin drawer')
 }
 
 export { getDeskNavbarNav }
@@ -68,7 +74,7 @@ function registerFrappeToggleShortcut(toggleShortcut: string) {
         if (isEditableTarget(document.activeElement)) return
         useFlyin().toggleDrawer()
       },
-      description: 'Toggle flyin drawer',
+      description: flyinDrawerShortcutDescription(),
       ignore_inputs: true,
     })
   }
@@ -167,7 +173,7 @@ export function setupAttachmentPreview() {
     event.preventDefault()
     preview.show({
       url,
-      title: link.textContent?.trim() || 'Preview',
+      title: link.textContent?.trim() || translateFlyinText('Preview'),
     })
   })
 
@@ -179,7 +185,7 @@ export function setupAttachmentPreview() {
   addPreviewTriggers()
 }
 
-function addPreviewTriggers() {
+export function addPreviewTriggers() {
   const preview = useFilePreview()
   if (!preview) return
 
@@ -197,7 +203,7 @@ function addPreviewTriggers() {
     const trigger = document.createElement('span')
     trigger.className = 'flyin-attachment-preview'
     trigger.dataset.flyinPreview = 'true'
-    trigger.title = 'Preview'
+    trigger.title = translateFlyinText('Preview')
     trigger.setAttribute('role', 'button')
     trigger.setAttribute('tabindex', '0')
     trigger.innerHTML = getDeskIconSvg('search')

@@ -11,6 +11,7 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "declaration": true,
     "declarationDir": "./dist",
     "baseUrl": ".",

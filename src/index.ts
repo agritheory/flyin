@@ -1,5 +1,5 @@
 // Components
-export { Flyout, FilePreview, FlyoutHeader, FlyoutFooter } from './components'
+export { Flyout, FilePreview, FlyoutHeader, FlyoutFooter, FlyinToggleShortcutHint } from './components'
 
 // Composables
 export { useFlyin, useFlyout, useFilePreview } from './composables'
@@ -16,6 +16,14 @@ export {
   getDeskNavbarNav,
   FLYIN_SHORTCUT_LABEL,
 } from './plugin'
+
+export {
+  DEFAULT_TOGGLE_SHORTCUT,
+  formatShortcutForDisplay,
+  isMacPlatform,
+  shortcutHintParts,
+} from './desk/keyboard-shortcuts'
+export type { ShortcutHintOptions } from './desk/keyboard-shortcuts'
 
 // Types
 export type {

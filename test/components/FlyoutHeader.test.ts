@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils'
+import { afterEach } from 'vitest'
 import FlyoutHeader from '../../src/components/FlyoutHeader.vue'
+
+afterEach(() => {
+  Reflect.deleteProperty(window, '__')
+})
 
 describe('FlyoutHeader', () => {
   it('renders a single title when only one slot is provided', () => {
@@ -60,6 +65,31 @@ describe('FlyoutHeader', () => {
     })
 
     expect(wrapper.find('.flyout-header-tabs__badge').text()).toBe('99+')
+  })
+
+  it('translates the title, tab label, and close button', () => {
+    Reflect.set(window, '__', (message: string) => {
+      if (message === 'Inbox') return 'Boîte'
+      if (message === 'Search') return 'Recherche'
+      if (message === 'Close') return 'Fermer'
+      return message
+    })
+
+    const wrapper = mount(FlyoutHeader, {
+      props: {
+        title: 'Inbox',
+        slotList: [
+          { id: 'inbox', title: 'Inbox' },
+          { id: 'search', title: 'Search' },
+        ],
+        activeSlotId: 'inbox',
+      },
+    })
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs[0].attributes('aria-label')).toBe('Boîte')
+    expect(tabs[1].attributes('title')).toBe('Recherche')
+    expect(wrapper.find('.flyout-drawer__close').attributes('aria-label')).toBe('Fermer')
   })
 
   it('emits close when close button is clicked', async () => {

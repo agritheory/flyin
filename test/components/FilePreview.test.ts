@@ -120,4 +120,22 @@ describe('FilePreview', () => {
 
     wrapper.unmount()
   })
+
+  it('translates the preview fallback title and close label', async () => {
+    Reflect.set(window, '__', (message: string) => {
+      if (message === 'Preview') return 'Aperçu'
+      if (message === 'Close preview') return 'Fermer l’aperçu'
+      return message
+    })
+    useFilePreview().show({ url: 'https://example.com/photo.png' })
+
+    const wrapper = mount(FilePreview, { attachTo: document.body })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.file-preview__title').text()).toBe('Aperçu')
+    expect(wrapper.find('.file-preview__close').attributes('aria-label')).toBe('Fermer l’aperçu')
+
+    wrapper.unmount()
+    Reflect.deleteProperty(window, '__')
+  })
 })

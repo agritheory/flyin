@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+import { DEFAULT_TOGGLE_SHORTCUT, shortcutHintParts } from '../../src/desk/keyboard-shortcuts'
 import {
   DEFAULT_FLYIN_NAVBAR_ICON,
+  FLYIN_SHORTCUT_LABEL,
   getAggregateBadgeCount,
+  renderNavbarBadges,
   resolveNavbarTriggerDisplay,
 } from '../../src/plugin'
 import type { FlyinSlotConfig } from '../../src/types'
@@ -65,6 +68,69 @@ describe('resolveNavbarTriggerDisplay', () => {
       icon: 'messages',
       title: 'Tools',
     })
+  })
+})
+
+const NAVBAR_HTML = `
+  <div class="navbar navbar-expand">
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav"></ul>
+    </div>
+  </div>
+`
+
+function installNonMacDesk() {
+  window.frappe = {}
+  Reflect.set(window.frappe, 'utils', { is_mac: () => false })
+}
+
+describe('navbar trigger tooltip', () => {
+  afterEach(() => {
+    document.body.innerHTML = NAVBAR_HTML
+    renderNavbarBadges({ getSlots: () => new Map() } as never, {
+      toggleShortcut: '',
+      navbarTitle: '',
+      navbarIcon: '',
+    })
+    document.body.innerHTML = ''
+    Reflect.deleteProperty(window, '__')
+    delete window.frappe
+  })
+
+  it('uses the default toggle chord instead of the old period shortcut', () => {
+    Reflect.deleteProperty(window, '__')
+    expect(FLYIN_SHORTCUT_LABEL).toBe('Ctrl+Shift+X')
+    expect(FLYIN_SHORTCUT_LABEL).toBe(
+      shortcutHintParts(DEFAULT_TOGGLE_SHORTCUT, { mac: false }).join('+'),
+    )
+  })
+
+  it('builds the tooltip from the slot title and the configured shortcut', () => {
+    installNonMacDesk()
+    Reflect.set(window, '__', (message: string) => (message === 'AutoReader' ? 'Lecteur' : message))
+    document.body.innerHTML = NAVBAR_HTML
+    const slots = makeSlots([['autoreader', { title: 'AutoReader', icon: 'autoreader' }]])
+
+    renderNavbarBadges(
+      { getSlots: () => slots, toggleDrawer: () => {} } as never,
+      { toggleShortcut: 'ctrl+alt+k' },
+    )
+
+    expect(document.querySelector('.flyin-trigger')?.getAttribute('title')).toBe('Lecteur (Ctrl+Alt+K)')
+  })
+
+  it('keeps a configured shortcut when navbar badges render again without one', () => {
+    installNonMacDesk()
+    document.body.innerHTML = NAVBAR_HTML
+    const slots = makeSlots([['wizard', { title: 'Wizard', icon: 'wizard-hat' }]])
+    const flyin = { getSlots: () => slots, toggleDrawer: () => {} } as never
+
+    renderNavbarBadges(flyin, { toggleShortcut: 'ctrl+shift+x', navbarTitle: 'Shipping' })
+    renderNavbarBadges(flyin)
+
+    expect(document.querySelector('.flyin-trigger')?.getAttribute('title')).toBe(
+      'Shipping (Ctrl+Shift+X)',
+    )
   })
 })
 

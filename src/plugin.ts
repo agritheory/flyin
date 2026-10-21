@@ -3,14 +3,37 @@ import type { FlyinPluginOptions, FlyinSlotConfig, PreviewPluginOptions } from '
 import { useFlyin } from './composables/useFlyin'
 import Flyout from './components/Flyout.vue'
 import FilePreview from './components/FilePreview.vue'
+import {
+  DEFAULT_TOGGLE_SHORTCUT,
+  formatShortcutForDisplay,
+} from './desk/keyboard-shortcuts'
+import { translateFlyinText } from './translate'
 
 export const FLYIN_NAVBAR_ROOT_ATTR = 'data-flyin-root'
 export const DEFAULT_FLYIN_NAVBAR_ICON = 'flyin'
-export const FLYIN_SHORTCUT_LABEL = 'Ctrl+Shift+.'
+/** English label for the default chord. Navbar tooltips use `formatShortcutForDisplay` instead. */
+export const FLYIN_SHORTCUT_LABEL = 'Ctrl+Shift+X'
 
 export interface FlyinNavbarDeskOptions {
   navbarIcon?: string
   navbarTitle?: string
+  toggleShortcut?: string
+}
+
+const navbarDeskOptions: FlyinNavbarDeskOptions = {}
+
+function applyNavbarDeskOptions(deskOptions: FlyinNavbarDeskOptions = {}): FlyinNavbarDeskOptions {
+  if (deskOptions.navbarIcon !== undefined) navbarDeskOptions.navbarIcon = deskOptions.navbarIcon
+  if (deskOptions.navbarTitle !== undefined) navbarDeskOptions.navbarTitle = deskOptions.navbarTitle
+  if (deskOptions.toggleShortcut !== undefined) {
+    navbarDeskOptions.toggleShortcut = deskOptions.toggleShortcut
+  }
+  return navbarDeskOptions
+}
+
+function navbarTriggerTooltip(title: string, deskOptions: FlyinNavbarDeskOptions): string {
+  const shortcut = deskOptions.toggleShortcut?.trim() || DEFAULT_TOGGLE_SHORTCUT
+  return `${translateFlyinText(title)} (${formatShortcutForDisplay(shortcut)})`
 }
 
 const icons: Record<string, string> = {
@@ -121,11 +144,15 @@ function ensureNavbarBadge(item: Element, count: number) {
   }
 }
 
-function syncNavbarTriggerIcon(item: Element, config: { title: string; icon?: string }) {
+function syncNavbarTriggerIcon(
+  item: Element,
+  config: { title: string; icon?: string },
+  deskOptions: FlyinNavbarDeskOptions,
+) {
   const trigger = item.querySelector<HTMLElement>('.flyin-trigger')
   if (!trigger) return
 
-  trigger.title = `${config.title} (${FLYIN_SHORTCUT_LABEL})`
+  trigger.title = navbarTriggerTooltip(config.title, deskOptions)
 
   const iconHtml = config.icon ? getIconSvg(config.icon) : ''
   const iconEl = trigger.querySelector('svg, .icon')
@@ -164,13 +191,14 @@ export function syncNavbarRootBadge(
   flyin: ReturnType<typeof useFlyin>,
   deskOptions: FlyinNavbarDeskOptions = {},
 ) {
+  const options = applyNavbarDeskOptions(deskOptions)
   const navbar = getDeskNavbarNav()
   if (!navbar) return
 
   const item = navbar.querySelector(`[${FLYIN_NAVBAR_ROOT_ATTR}]`)
   if (!item) return
 
-  syncNavbarTriggerIcon(item, resolveNavbarTriggerDisplay(flyin.getSlots(), deskOptions))
+  syncNavbarTriggerIcon(item, resolveNavbarTriggerDisplay(flyin.getSlots(), options), options)
   ensureNavbarBadge(item, getAggregateBadgeCount(flyin))
 }
 
@@ -178,6 +206,7 @@ export function renderNavbarBadges(
   flyin: ReturnType<typeof useFlyin>,
   deskOptions: FlyinNavbarDeskOptions = {},
 ) {
+  const options = applyNavbarDeskOptions(deskOptions)
   const navbar = getDeskNavbarNav()
 
   if (!navbar) {
@@ -193,7 +222,7 @@ export function renderNavbarBadges(
 
   removeLegacyNavbarSlotItems(navbar)
 
-  const display = resolveNavbarTriggerDisplay(flyin.getSlots(), deskOptions)
+  const display = resolveNavbarTriggerDisplay(flyin.getSlots(), options)
   let item = navbar.querySelector(`[${FLYIN_NAVBAR_ROOT_ATTR}]`)
 
   if (!item) {
@@ -206,7 +235,7 @@ export function renderNavbarBadges(
     trigger.className = 'flyin-trigger nav-link text-muted'
     trigger.setAttribute('role', 'button')
     trigger.setAttribute('tabindex', '0')
-    trigger.title = `${display.title} (${FLYIN_SHORTCUT_LABEL})`
+    trigger.title = navbarTriggerTooltip(display.title, options)
     trigger.innerHTML = `
       ${display.icon && getIconSvg(display.icon) ? getIconSvg(display.icon) : ''}
       <span class="badge" style="display: none;"></span>
@@ -221,7 +250,7 @@ export function renderNavbarBadges(
       navbar.insertBefore(item, notifications)
     }
   } else {
-    syncNavbarTriggerIcon(item, display)
+    syncNavbarTriggerIcon(item, display, options)
   }
 
   ensureNavbarBadge(item, getAggregateBadgeCount(flyin))

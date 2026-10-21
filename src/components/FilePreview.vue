@@ -6,8 +6,8 @@
       @keydown.escape="preview.close"
     >
       <div class="file-preview__header">
-        <h3 class="file-preview__title">{{ preview.currentFile.value.title || 'Preview' }}</h3>
-        <button class="file-preview__close" @click="preview.close" aria-label="Close preview">
+        <h3 class="file-preview__title">{{ preview.currentFile.value.title || localized('Preview') }}</h3>
+        <button class="file-preview__close" @click="preview.close" :aria-label="localized('Close preview')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -20,14 +20,14 @@
         <iframe
           v-if="preview.currentFile.value.type === 'pdf' && preview.currentFile.value.url"
           :src="preview.currentFile.value.url"
-          title="PDF Preview"
+          :title="localized('PDF Preview')"
         />
 
         <!-- Image -->
         <img
           v-else-if="preview.currentFile.value.type === 'image' && preview.currentFile.value.url"
           :src="preview.currentFile.value.url"
-          :alt="preview.currentFile.value.title || 'Image preview'"
+          :alt="preview.currentFile.value.title || localized('Image preview')"
         />
 
         <!-- Video -->
@@ -60,14 +60,14 @@
 
         <!-- Fallback -->
         <div v-else class="file-preview__fallback">
-          <p>Unable to preview this file type.</p>
+          <p>{{ localized('Unable to preview this file type.') }}</p>
           <a
             v-if="preview.currentFile.value.url"
             :href="preview.currentFile.value.url"
             target="_blank"
             rel="noopener"
           >
-            Open in new tab
+            {{ localized('Open in new tab') }}
           </a>
         </div>
       </div>
@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import { computed, watch, ref, onMounted, onUnmounted } from 'vue'
 import { useFilePreview } from '../composables/useFilePreview'
+import { translateFlyinText } from '../translate'
 
 const props = withDefaults(
   defineProps<{
@@ -90,6 +91,10 @@ const props = withDefaults(
 
 const preview = useFilePreview()
 const docxContainer = ref<HTMLElement | null>(null)
+
+function localized(message: string): string {
+  return translateFlyinText(message)
+}
 
 const sanitizedContent = computed(() => {
   const content = preview.currentFile.value.content

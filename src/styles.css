@@ -485,3 +485,15 @@ body.flyout-preview-open .page-body .page-wrapper .page-content {
 .flyin-attachment-preview .flyin-preview-icon {
   display: block;
 }
+
+.flyin-shortcut-hint kbd {
+  display: inline-block;
+  margin: 0 1px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  background: var(--control-bg, rgba(0, 0, 0, 0.04));
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+}

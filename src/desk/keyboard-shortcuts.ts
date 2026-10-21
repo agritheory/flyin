@@ -1,3 +1,5 @@
+import { translateFlyinText } from '../translate'
+
 /**
  * Ctrl+Shift+X toggles the drawer.
  *
@@ -121,16 +123,56 @@ function normalizeEventKey(key: string): string {
   return key.toLowerCase()
 }
 
+export interface ShortcutHintOptions {
+  /** When omitted, follow Frappe's `utils.is_mac()` (⌘ / ⇧ / ⌥ on macOS). */
+  mac?: boolean
+}
+
+function isZeroArgFunction(value: unknown): value is () => unknown {
+  return typeof value === 'function'
+}
+
+/** True when Frappe (or the browser) reports a Mac keyboard. */
+export function isMacPlatform(): boolean {
+  const frappe = Reflect.get(window, 'frappe')
+  if (typeof frappe === 'object' && frappe !== null) {
+    const utils = Reflect.get(frappe, 'utils')
+    if (typeof utils === 'object' && utils !== null) {
+      const isMac = Reflect.get(utils, 'is_mac')
+      if (isZeroArgFunction(isMac)) return Boolean(isMac())
+    }
+  }
+
+  return window.navigator.platform === 'MacIntel'
+}
+
+function modifierLabel(text: string, macSymbol: string, mac: boolean): string {
+  if (mac) return macSymbol
+  return translateFlyinText(text)
+}
+
 /** Human-readable key labels for UI hints (e.g. footer kbd elements). */
-export function shortcutHintParts(spec: string = DEFAULT_TOGGLE_SHORTCUT): string[] {
+export function shortcutHintParts(
+  spec: string = DEFAULT_TOGGLE_SHORTCUT,
+  options: ShortcutHintOptions = {},
+): string[] {
   const parsed = parseShortcut(spec)
+  const mac = options.mac ?? isMacPlatform()
   const labels: string[] = []
-  if (parsed.ctrl) labels.push('Ctrl')
+  if (parsed.ctrl) labels.push(modifierLabel('Ctrl', '⌘', mac))
   if (parsed.meta) labels.push('⌘')
-  if (parsed.alt) labels.push('Alt')
-  if (parsed.shift) labels.push('Shift')
+  if (parsed.alt) labels.push(modifierLabel('Alt', '⌥', mac))
+  if (parsed.shift) labels.push(modifierLabel('Shift', '⇧', mac))
   labels.push(parsed.key.length === 1 ? parsed.key.toUpperCase() : titleCaseKey(parsed.key))
   return labels
+}
+
+/** Tooltip / hint string, e.g. `Ctrl+Shift+X` or `⌘+⇧+X`. */
+export function formatShortcutForDisplay(
+  spec: string = DEFAULT_TOGGLE_SHORTCUT,
+  options: ShortcutHintOptions = {},
+): string {
+  return shortcutHintParts(spec, options).join('+')
 }
 
 function titleCaseKey(key: string): string {

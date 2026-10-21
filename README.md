@@ -162,7 +162,25 @@ Slots are registered at build time from all apps' `hooks.py` configs.
 
 When two or more slots are registered, the drawer header shows icon tabs instead of a title. Click a tab to switch slots without closing the drawer.
 
-Press **Ctrl+Shift+X** anywhere on desk (except when typing in a field) to toggle the drawer. On macOS, **⌘+Shift+X** matches the same shortcut. Browser window commands (close, quit) and Frappe **Alt** menu accelerators are not overridable from the page.
+Press **Ctrl+Shift+X** anywhere on desk (except when typing in a field) to toggle the drawer. On macOS the navbar tooltip and `<FlyinToggleShortcutHint>` use **⌘+⇧+X**. Browser window commands (close, quit) and Frappe **Alt** menu accelerators are not overridable from the page.
+
+Slot titles, the navbar title, the close button, and preview chrome are translation msgids. Flyin passes them through `window.__` or `frappe.__` when it paints the header and navbar tooltip. Keep the English string in `hooks.py` (for example `"Pending Approvals"`, `"AutoReader"`).
+
+```typescript
+import {
+  DEFAULT_TOGGLE_SHORTCUT,
+  FlyinToggleShortcutHint,
+  formatShortcutForDisplay,
+  shortcutHintParts,
+} from '@agritheory/flyin'
+
+formatShortcutForDisplay() // "Ctrl+Shift+X", or "⌘+⇧+X" on macOS
+shortcutHintParts(DEFAULT_TOGGLE_SHORTCUT, { mac: false })
+```
+
+```vue
+<FlyinToggleShortcutHint :label="__('Toggle drawer:')" />
+```
 
 When opening via shortcut, flyin restores the last-used slot, or the first slot with a badge count, or the first registered slot.
 

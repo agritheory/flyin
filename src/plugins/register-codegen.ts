@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { getAppConfigs, getMergedFlyinConfig } from './hooks'
+import { getAppConfigs, getMergedFlyinConfig } from './hooks.ts'
 
 export function generateFlyinRegisterModule(options?: {
   appsDir?: string
